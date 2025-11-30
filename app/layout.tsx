@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import localFont from 'next/font/local'
+import  ThemeProvider  from '../context/Theme'
+import Navbar from '@/components/navigation/navbar'
 
 export const metadata: Metadata = {
   title: 'DevFlow',
@@ -21,11 +23,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
