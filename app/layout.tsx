@@ -1,8 +1,12 @@
 import type { Metadata } from 'next'
+// @ts-ignore: allow side-effect import of global CSS without type declarations
 import './globals.css'
 import localFont from 'next/font/local'
 import  ThemeProvider  from '../context/Theme'
-import Navbar from '@/components/navigation/navbar'
+import { Toaster } from '@/components/ui/sonner'
+import { SessionProvider } from 'next-auth/react'
+import { auth } from '@/auth'
+
 
 export const metadata: Metadata = {
   title: 'DevFlow',
@@ -17,19 +21,28 @@ const inter = localFont({
   weight: "100 200 300 400 500 600 700 800 900", 
 })
 
-export default function RootLayout({
+const RootLayout = async ({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) => {
+
+  const session = await auth();
+
+  console.log("User session in RootLayout:", session);
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Navbar />
-          {children}
-        </ThemeProvider>
-      </body>
+      <SessionProvider session={session}>
+        <body className={`${inter.variable} antialiased`}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+          <Toaster />
+        </body>
+      </SessionProvider>
     </html>
   )
 }
+
+export default RootLayout

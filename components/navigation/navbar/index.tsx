@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 import Image from 'next/image'
-import logo from '../../../public/images/site-logo.svg'
+import logo from '../../../public/icons/site-logo.svg'
 import Theme from './Theme'
 
 const Navbar = () => {
