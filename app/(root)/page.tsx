@@ -1,9 +1,10 @@
 import { auth } from '@/auth'
+import HomeFilter from '@/components/filters/HomeFilter'
 import LocalSearch from '@/components/search/LocalSearch'
 import { Button } from '@/components/ui/button'
 import ROUTES from '@/constants/routes'
 import Link from 'next/link'
-import { title } from 'process'
+
 
 const Questions = [
   {
@@ -94,15 +95,20 @@ const Questions = [
 ]
 
 interface SearchParams {
-  searchParams: Promise<{ [key: string]: string}>;
+  searchParams: Promise<{ [key: string]: string }>
 }
-export default async function Home({searchParams}: SearchParams) {
-  const {query = ""} = await searchParams;
+export default async function Home({ searchParams }: SearchParams) {
+  const { query = '', filter = '' } = await searchParams
 
-  const filteredQuestions = Questions.filter((question) => question.title.toLowerCase().includes(query?.toLowerCase()))
+  const filteredQuestions = Questions.filter((question) => {
+    const matchesQuery = question.title.toLowerCase().includes(query?.toLowerCase())
+    const matchesFilter = filter ? question.tags[0].name.toLowerCase() == filter.toLowerCase() : true;
+
+    return matchesFilter && matchesQuery
+  })
 
   const session = await auth()
-  console.log('User session on home page:', session)
+
   return (
     <>
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
@@ -124,7 +130,7 @@ export default async function Home({searchParams}: SearchParams) {
           placeholder="Search Questions..."
           otherClasses="flex-1"
         />
-
+        <HomeFilter />
         <div className="mt-10 flex w-full flex-col gap-6">
           {filteredQuestions.map((question) => (
             <h1 key={question._id}>{question.title}</h1>
