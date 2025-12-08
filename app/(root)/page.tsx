@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import QuestionCard from '@/components/cards/QuestionCard'
 import HomeFilter from '@/components/filters/HomeFilter'
 import LocalSearch from '@/components/search/LocalSearch'
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,12 @@ const Questions = [
       },
       { _id: '2', name: 'JavaScript' },
     ],
-    author: { _id: '1', name: 'John Doe' },
+    author: {
+      _id: '1',
+      name: 'John Doe',
+      image:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s',
+    },
     upvotes: 10,
     answers: 5,
     views: 100,
@@ -35,7 +41,11 @@ const Questions = [
       },
       { _id: '4', name: 'Web Development' },
     ],
-    author: { _id: '2', name: 'Jane Smith' },
+    author: { 
+      _id: '2', 
+      name: 'Jane Smith',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s'
+    },
     upvotes: 15,
     answers: 8,
     views: 150,
@@ -52,7 +62,11 @@ const Questions = [
       },
       { _id: '1', name: 'React' },
     ],
-    author: { _id: '3', name: 'Mike Johnson' },
+    author: { 
+      _id: '3', 
+      name: 'Mike Johnson',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s'
+    },
     upvotes: 20,
     answers: 12,
     views: 200,
@@ -69,7 +83,11 @@ const Questions = [
       },
       { _id: '7', name: 'Backend' },
     ],
-    author: { _id: '4', name: 'Sarah Williams' },
+    author: { 
+      _id: '4', 
+      name: 'Sarah Williams',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s'
+    },
     upvotes: 25,
     answers: 10,
     views: 250,
@@ -86,7 +104,11 @@ const Questions = [
       },
       { _id: '7', name: 'Performance' },
     ],
-    author: { _id: '5', name: 'David Brown' },
+    author: { 
+      _id: '5', 
+      name: 'David Brown',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s'
+    },
     upvotes: 18,
     answers: 9,
     views: 180,
@@ -133,7 +155,7 @@ export default async function Home({ searchParams }: SearchParams) {
         <HomeFilter />
         <div className="mt-10 flex w-full flex-col gap-6">
           {filteredQuestions.map((question) => (
-            <h1 key={question._id}>{question.title}</h1>
+            <QuestionCard key={question._id} question={question}/>
           ))}
         </div>
       </section>
