@@ -4,6 +4,8 @@ import HomeFilter from '@/components/filters/HomeFilter'
 import LocalSearch from '@/components/search/LocalSearch'
 import { Button } from '@/components/ui/button'
 import ROUTES from '@/constants/routes'
+import handleError from '@/lib/handlers/error'
+import dbConnect from '@/lib/mongoose'
 import Link from 'next/link'
 
 
@@ -11,7 +13,7 @@ const Questions = [
   {
     _id: '1',
     title: 'How to learn React?',
-    description: 'I want to learn React, can anyone help me?',
+    content: 'I want to learn React, can anyone help me?',
     tags: [
       {
         _id: '1',
@@ -26,6 +28,7 @@ const Questions = [
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s',
     },
     upvotes: 10,
+    downvotes: 2,
     answers: 5,
     views: 100,
     createdAt: new Date(),
@@ -33,7 +36,7 @@ const Questions = [
   {
     _id: '2',
     title: 'What is TypeScript?',
-    description: 'Can someone explain TypeScript and its benefits?',
+    content: 'Can someone explain TypeScript and its benefits?',
     tags: [
       {
         _id: '3',
@@ -47,6 +50,7 @@ const Questions = [
       image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s'
     },
     upvotes: 15,
+    downvotes: 1,
     answers: 8,
     views: 150,
     createdAt: new Date(),
@@ -54,7 +58,7 @@ const Questions = [
   {
     _id: '3',
     title: 'How to use Next.js?',
-    description: "I'm new to Next.js, where should I start?",
+    content: "I'm new to Next.js, where should I start?",
     tags: [
       {
         _id: '5',
@@ -68,6 +72,7 @@ const Questions = [
       image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s'
     },
     upvotes: 20,
+    downvotes: 3,
     answers: 12,
     views: 200,
     createdAt: new Date(),
@@ -75,7 +80,7 @@ const Questions = [
   {
     _id: '4',
     title: 'Best practices for REST APIs',
-    description: 'What are the best practices when building REST APIs?',
+    content: 'What are the best practices when building REST APIs?',
     tags: [
       {
         _id: '6',
@@ -89,6 +94,7 @@ const Questions = [
       image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s'
     },
     upvotes: 25,
+    downvotes: 2,
     answers: 10,
     views: 250,
     createdAt: new Date(),
@@ -96,7 +102,7 @@ const Questions = [
   {
     _id: '5',
     title: 'How to optimize database queries?',
-    description: 'My queries are running slow, how can I optimize them?',
+    content: 'My queries are running slow, how can I optimize them?',
     tags: [
       {
         _id: '8',
@@ -110,16 +116,28 @@ const Questions = [
       image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvZRzCOTmTpG-0zKoHeoNr8J-LeI_ihfZO3Q&s'
     },
     upvotes: 18,
+    downvotes: 1,
     answers: 9,
     views: 180,
     createdAt: new Date(),
   },
 ]
 
+const test = async () => {
+  try {
+   await dbConnect();
+  } catch (error) {
+    handleError(error);
+  }
+}
+
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>
 }
+
 export default async function Home({ searchParams }: SearchParams) {
+  const result = await test();
+  
   const { query = '', filter = '' } = await searchParams
 
   const filteredQuestions = Questions.filter((question) => {

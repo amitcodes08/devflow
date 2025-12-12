@@ -3,8 +3,6 @@
 import Image from 'next/image'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-
-// Assuming these utility functions are correctly defined in your project
 import { formUrlQuery, removeKeysFromUrlQuery } from '@/lib/url'
 
 import { Input } from '../ui/input'
