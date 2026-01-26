@@ -6,11 +6,12 @@ import { usePathname } from 'next/navigation'
 import React, { use } from 'react'
 import { cn } from '@/lib/utils'
 import { SheetClose } from '@/components/ui/sheet';
+import { strict } from 'assert';
 
-const NavLinks = ({isMobileNav = false}: {isMobileNav?:Boolean}) => {
+const NavLinks = ({isMobileNav = false, userId}: {isMobileNav?:Boolean, userId?: string}) => {
 
     const pathName = usePathname();
-    const userId = 1;
+    
   return (
     <>
     {sidebarLinks.map((item) => {

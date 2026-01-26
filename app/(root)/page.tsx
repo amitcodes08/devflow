@@ -149,8 +149,6 @@ export default async function Home({ searchParams }: SearchParams) {
 
   const session = await auth()
 
-  console.log('Session:', session)
-
   return (
     <>
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
