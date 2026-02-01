@@ -13,7 +13,12 @@ const EditQuestion = async ({ params }: RouteParams) => {
   if (!session) return redirect('/sign-in')
 
   const { data: question, success } = await getQuestion({ questionId: id })
-  if (!success) return notFound()
+  if (!success){
+    console.log("❌ Failed to fetch question from DB");
+    return notFound()
+  } 
+    
+    
 
   if (question?.author._id.toString() !== session?.user?.id)
     redirect(ROUTES.QUESTION(id))
