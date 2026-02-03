@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import ROUTES from '@/constants/routes'
 import { getTimeStamp } from '@/lib/utils'
+import UserAvatar from '../UserAvatar'
 
 import TagCard from './TagCard'
 import Metric from '../Metric'

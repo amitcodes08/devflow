@@ -1,9 +1,11 @@
 import { auth } from '@/auth'
 import QuestionCard from '@/components/cards/QuestionCard'
+import DataRenderer from '@/components/DataRenderer'
 import HomeFilter from '@/components/filters/HomeFilter'
 import LocalSearch from '@/components/search/LocalSearch'
 import { Button } from '@/components/ui/button'
 import ROUTES from '@/constants/routes'
+import { EMPTY_QUESTION } from '@/constants/states'
 import { getQuestions } from '@/lib/actions/question.action'
 import handleError from '@/lib/handlers/error'
 import dbConnect from '@/lib/mongoose'
@@ -11,9 +13,9 @@ import Link from 'next/link'
 
 const test = async () => {
   try {
-   await dbConnect();
+    await dbConnect()
   } catch (error) {
-    handleError(error);
+    handleError(error)
   }
 }
 
@@ -22,18 +24,18 @@ interface SearchParams {
 }
 
 export default async function Home({ searchParams }: SearchParams) {
-  const result = await test();
-  
-  const {page, pageSize, query, filter } = await searchParams
+  const result = await test()
+
+  const { page, pageSize, query, filter } = await searchParams
 
   const { success, data, error } = await getQuestions({
     page: Number(page) || 1,
     pageSize: Number(pageSize) || 10,
-    query: query || "",
-    filter: filter || "",
+    query: query || '',
+    filter: filter || '',
   })
 
-  const {questions} = data || {};
+  const { questions } = data || {}
 
   // const filteredQuestions = Questions.filter((question) => {
   //   const matchesQuery = question.title.toLowerCase().includes(query?.toLowerCase())
@@ -66,20 +68,20 @@ export default async function Home({ searchParams }: SearchParams) {
           otherClasses="flex-1"
         />
         <HomeFilter />
-        {success ? (<div className="mt-10 flex w-full flex-col gap-6">
-          {questions && questions.length > 0 ? questions.map((question) => (
-            <QuestionCard key={question._id} question={question}/>
-          )) : <div className='mt-10 flex w-full items-center justify-center'>
-            <p className='text-dark400_light700'>No questions found</p>
-            </div>}
-        </div>) : (
-          <div className='mt-10 flex w-full items-center justify-center'>
-            <p className='text-dark400_light700'>
-              {error?.message || "Failed to fetch questions"}
-            </p>
-          </div>
-        )}
-        
+
+        <DataRenderer
+          success={success}
+          error={error}
+          data={questions}
+          empty={EMPTY_QUESTION}
+          render={(questions) => (
+            <div className='mt-10 flex w-full flex-col gap-6'>
+              {questions.map((question) => (
+                <QuestionCard key={question._id} question={question} />
+              ))}
+            </div>
+          )}
+        />
       </section>
     </>
   )

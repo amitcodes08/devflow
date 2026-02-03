@@ -12,9 +12,9 @@ interface Props {
 
 const UserAvatar = ({ id, name, imageUrl, className = 'h-9 w-9' }: Props) => {
   const initials = name
-    .split(' ')
+    .split(" ")
     .map((word: string) => word[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2)
   return (
