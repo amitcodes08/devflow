@@ -26,16 +26,12 @@ const LocalSearch = ({
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // 1. Get the current 'query' parameter from the URL
   const urlQuery = searchParams.get('query')
 
-  // 2. Initialize the local state with the current URL query or an empty string
   const [searchQuery, setSearchQuery] = useState(urlQuery || '')
 
   useEffect(() => {
-    // Set up the debounce timer
     const delayDebounceFn = setTimeout(() => {
-      // Logic for when the search box HAS content
       if (searchQuery) {
         // *** FIX APPLIED HERE: Only push if the state value is different from the current URL value ***
         if (urlQuery !== searchQuery) {
@@ -48,7 +44,6 @@ const LocalSearch = ({
           router.push(newUrl, { scroll: false })
         }
       }
-      // Logic for when the search box is EMPTY
       else {
         // *** FIX APPLIED HERE: Only push if we are on the correct route AND the 'query' param currently exists in the URL ***
         if (pathname === route && urlQuery) {
@@ -60,12 +55,9 @@ const LocalSearch = ({
           router.push(newUrl, { scroll: false })
         }
       }
-    }, 300) // 300ms debounce delay
-
-    // Cleanup function to clear the previous timer
+    }, 300)
     return () => clearTimeout(delayDebounceFn)
 
-    // Include `urlQuery` in dependencies to detect when the URL changes (e.g., if a user hits the back button)
   }, [searchQuery, router, route, searchParams, pathname, urlQuery])
 
   return (
