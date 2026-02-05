@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 
 import AllAnswers from '@/components/answers/AllAnswers'
 import TagCard from '@/components/cards/TagCard'
-import { Preview } from '@/components/editor/Preview'
+import Preview  from '@/components/editor/Preview'
 import AnswerForm from '@/components/forms/AnswerForm'
 import Metric from '@/components/Metric'
 import SaveQuestion from '@/components/questions/SaveQuestion'

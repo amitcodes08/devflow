@@ -1,14 +1,13 @@
 'use server'
-import '@/database/user.model'
-import '@/database/tag.model'
-import mongoose, { FilterQuery } from 'mongoose'
+
+import mongoose, { FilterQuery, Types } from 'mongoose'
 import { revalidatePath } from 'next/cache'
 import { after } from 'next/server'
+
 import { auth } from '@/auth'
 import { Answer, Collection, Interaction, Vote } from '@/database'
 import Question, { IQuestionDoc } from '@/database/question.model'
 import TagQuestion from '@/database/tag-question.model'
-import User from '@/database/user.model'
 import Tag, { ITagDoc } from '@/database/tag.model'
 import action from '@/lib/handlers/action'
 import handleError from '@/lib/handlers/error'
@@ -21,9 +20,10 @@ import {
   PaginatedSearchParamsSchema,
 } from '@/lib/validations'
 
-// import { createInteraction } from './interaction.action'
-import { cache } from 'react'
 import dbConnect from '../mongoose'
+import { createInteraction } from './interaction.action'
+import { cache } from 'react'
+import ROUTES from '@/constants/routes'
 
 export async function createQuestion(
   params: CreateQuestionParams
@@ -78,14 +78,14 @@ export async function createQuestion(
     )
 
     // log the interaction
-    // after(async () => {
-    //   await createInteraction({
-    //     action: 'post',
-    //     actionId: question._id.toString(),
-    //     actionTarget: 'question',
-    //     authorId: userId as string,
-    //   })
-    // })
+    after(async () => {
+      await createInteraction({
+        action: 'post',
+        actionId: question._id.toString(),
+        actionTarget: 'question',
+        authorId: userId as string,
+      })
+    })
 
     await session.commitTransaction()
 
@@ -205,8 +205,6 @@ export async function editQuestion(
 export const getQuestion = cache(async function getQuestion(
   params: GetQuestionParams
 ): Promise<ActionResponse<Question>> {
-  await dbConnect()
-
   const validationResult = await action({
     params,
     schema: GetQuestionSchema,
@@ -379,133 +377,134 @@ export async function getQuestions(params: PaginatedSearchParams): Promise<
   }
 }
 
-// export async function incrementViews(
-//   params: IncrementViewsParams
-// ): Promise<ActionResponse<{ views: number }>> {
-//   const validationResult = await action({
-//     params,
-//     schema: IncrementViewsSchema,
-//   })
+export async function incrementViews(
+  params: IncrementViewsParams
+): Promise<ActionResponse<{ views: number }>> {
+  const validationResult = await action({
+    params,
+    schema: IncrementViewsSchema,
+  })
 
-//   if (validationResult instanceof Error) {
-//     return handleError(validationResult) as ErrorResponse
-//   }
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse
+  }
 
-//   const { questionId } = validationResult.params!
+  const { questionId } = validationResult.params!
 
-//   try {
-//     const question = await Question.findById(questionId)
-//     if (!question) throw new Error('Question not found')
+  try {
+    const question = await Question.findById(questionId)
+    if (!question) throw new Error('Question not found')
 
-//     question.views += 1
+    question.views += 1
 
-//     await question.save()
+    await question.save()
+    revalidatePath(ROUTES.QUESTION(questionId))
 
-//     return {
-//       success: true,
-//       data: { views: question.views },
-//     }
-//   } catch (error) {
-//     return handleError(error) as ErrorResponse
-//   }
-// }
+    return {
+      success: true,
+      data: { views: question.views },
+    }
+  } catch (error) {
+    return handleError(error) as ErrorResponse
+  }
+}
 
-// export async function getHotQuestions(): Promise<ActionResponse<Question[]>> {
-//   try {
-//     await dbConnect()
+export async function getHotQuestions(): Promise<ActionResponse<Question[]>> {
+  try {
+    await dbConnect()
 
-//     const questions = await Question.find()
-//       .sort({ views: -1, upvotes: -1 })
-//       .limit(5)
+    const questions = await Question.find()
+      .sort({ views: -1, upvotes: -1 })
+      .limit(5)
 
-//     return {
-//       success: true,
-//       data: JSON.parse(JSON.stringify(questions)),
-//     }
-//   } catch (error) {
-//     return handleError(error) as ErrorResponse
-//   }
-// }
+    return {
+      success: true,
+      data: JSON.parse(JSON.stringify(questions)),
+    }
+  } catch (error) {
+    return handleError(error) as ErrorResponse
+  }
+}
 
-// export async function deleteQuestion(
-//   params: DeleteQuestionParams
-// ): Promise<ActionResponse> {
-//   const validationResult = await action({
-//     params,
-//     schema: DeleteQuestionSchema,
-//     authorize: true,
-//   })
+export async function deleteQuestion(
+  params: DeleteQuestionParams
+): Promise<ActionResponse> {
+  const validationResult = await action({
+    params,
+    schema: DeleteQuestionSchema,
+    authorize: true,
+  })
 
-//   if (validationResult instanceof Error) {
-//     return handleError(validationResult) as ErrorResponse
-//   }
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse
+  }
 
-//   const { questionId } = validationResult.params!
-//   const { user } = validationResult.session!
-//   const session = await mongoose.startSession()
+  const { questionId } = validationResult.params!
+  const { user } = validationResult.session!
+  const session = await mongoose.startSession()
 
-//   try {
-//     session.startTransaction()
+  try {
+    session.startTransaction()
 
-//     const question = await Question.findById(questionId).session(session)
-//     if (!question) throw new Error('Question not found')
+    const question = await Question.findById(questionId).session(session)
+    if (!question) throw new Error('Question not found')
 
-//     if (question.author.toString() !== user?.id)
-//       throw new Error('You are not authorized to delete this question')
+    if (question.author.toString() !== user?.id)
+      throw new Error('You are not authorized to delete this question')
 
-//     // Delete related entries inside the transaction
-//     await Collection.deleteMany({ question: questionId }).session(session)
-//     await TagQuestion.deleteMany({ question: questionId }).session(session)
+    // Delete related entries inside the transaction
+    await Collection.deleteMany({ question: questionId }).session(session)
+    await TagQuestion.deleteMany({ question: questionId }).session(session)
 
-//     // For all tags of Question, find them and reduce their count
-//     if (question.tags.length > 0) {
-//       await Tag.updateMany(
-//         { _id: { $in: question.tags } },
-//         { $inc: { questions: -1 } },
-//         { session }
-//       )
-//     }
+    // For all tags of Question, find them and reduce their count
+    if (question.tags.length > 0) {
+      await Tag.updateMany(
+        { _id: { $in: question.tags } },
+        { $inc: { questions: -1 } },
+        { session }
+      )
+    }
 
-//     //  Remove all votes of the question
-//     await Vote.deleteMany({
-//       actionId: questionId,
-//       actionType: 'question',
-//     }).session(session)
+    //  Remove all votes of the question
+    await Vote.deleteMany({
+      actionId: questionId,
+      actionType: 'question',
+    }).session(session)
 
-//     // Remove all answers and their votes of the question
-//     const answers = await Answer.find({ question: questionId }).session(session)
+    // Remove all answers and their votes of the question
+    const answers = await Answer.find({ question: questionId }).session(session)
 
-//     if (answers.length > 0) {
-//       await Answer.deleteMany({ question: questionId }).session(session)
+    if (answers.length > 0) {
+      await Answer.deleteMany({ question: questionId }).session(session)
 
-//       await Vote.deleteMany({
-//         actionId: { $in: answers.map((answer) => answer.id) },
-//         actionType: 'answer',
-//       }).session(session)
-//     }
+      await Vote.deleteMany({
+        actionId: { $in: answers.map((answer) => answer.id) },
+        actionType: 'answer',
+      }).session(session)
+    }
 
-//     await Question.findByIdAndDelete(questionId).session(session)
+    await Question.findByIdAndDelete(questionId).session(session)
 
-//     // log the interaction
-//     after(async () => {
-//       await createInteraction({
-//         action: 'delete',
-//         actionId: questionId,
-//         actionTarget: 'question',
-//         authorId: user?.id as string,
-//       })
-//     })
+    // log the interaction
+    after(async () => {
+      await createInteraction({
+        action: 'delete',
+        actionId: questionId,
+        actionTarget: 'question',
+        authorId: user?.id as string,
+      })
+    })
 
-//     await session.commitTransaction()
-//     session.endSession()
+    await session.commitTransaction()
+    session.endSession()
 
-//     revalidatePath(`/profile/${user?.id}`)
+    revalidatePath(`/profile/${user?.id}`)
 
-//     return { success: true }
-//   } catch (error) {
-//     await session.abortTransaction()
-//     session.endSession()
+    return { success: true }
+  } catch (error) {
+    await session.abortTransaction()
+    session.endSession()
 
-//     return handleError(error) as ErrorResponse
-//   }
-// }
+    return handleError(error) as ErrorResponse
+  }
+}
