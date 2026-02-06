@@ -18,7 +18,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { createAnswer } from '@/lib/actions/answer.action'
 import { api } from '@/lib/api'
 import { AnswerSchema } from '@/lib/validations'
@@ -57,30 +57,20 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
       if (result.success) {
         form.reset()
 
-        toast({
-          title: 'Success',
-          description: 'Your answer has been posted successfully',
-        })
+        toast.success('Your answer has been posted successfully')
 
         if (editorRef.current) {
           editorRef.current.setMarkdown('')
         }
       } else {
-        toast({
-          title: 'Error',
-          description: result.error?.message,
-          variant: 'destructive',
-        })
+        toast.error("Error posting your answer")
       }
     })
   }
 
   const generateAIAnswer = async () => {
     if (session.status !== 'authenticated') {
-      return toast({
-        title: 'Please log in',
-        description: 'You need to be logged in to use this feature',
-      })
+      return toast.warning('You need to be logged in to use this feature')
     }
 
     setIsAISubmitting(true)
@@ -95,11 +85,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
       )
 
       if (!success) {
-        return toast({
-          title: 'Error',
-          description: error?.message,
-          variant: 'destructive',
-        })
+        return toast.error("Something went wrong")
       }
 
       const formattedAnswer = data.replace(/<br>/g, ' ').toString().trim()
@@ -111,19 +97,9 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
         form.trigger('content')
       }
 
-      toast({
-        title: 'Success',
-        description: 'AI generated answer has been generated',
-      })
+      toast.success('AI generated answer has been generated')
     } catch (error) {
-      toast({
-        title: 'Error',
-        description:
-          error instanceof Error
-            ? error.message
-            : 'There was a problem with your request',
-        variant: 'destructive',
-      })
+      toast.error("There was a problem with your request")
     } finally {
       setIsAISubmitting(false)
     }
