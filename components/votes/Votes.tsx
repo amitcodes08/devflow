@@ -54,7 +54,7 @@ const Votes = ({
           ? `Upvote ${!hasUpvoted ? 'added' : 'removed'} successfully`
           : `Downvote ${!hasDownvoted ? 'added' : 'removed'} successfully`
 
-      toast.success('Your vote has been recorded.')
+      toast.success(successMessage)
     } catch {
       toast.error('An error occurred while voting. Please try again later.')
     } finally {
