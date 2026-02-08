@@ -3,6 +3,7 @@ import QuestionCard from '@/components/cards/QuestionCard'
 import DataRenderer from '@/components/DataRenderer'
 import CommonFilter from '@/components/filters/CommonFilter'
 import HomeFilter from '@/components/filters/HomeFilter'
+import Pagination from '@/components/Pagination'
 import LocalSearch from '@/components/search/LocalSearch'
 import { Button } from '@/components/ui/button'
 import { HomePageFilters } from '@/constants/filters'
@@ -37,7 +38,7 @@ export default async function Home({ searchParams }: SearchParams) {
     filter: filter || '',
   })
 
-  const { questions } = data || {}
+  const { questions, isNext } = data || {}
 
   // const filteredQuestions = Questions.filter((question) => {
   //   const matchesQuery = question.title.toLowerCase().includes(query?.toLowerCase())
@@ -53,7 +54,7 @@ export default async function Home({ searchParams }: SearchParams) {
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
         <Button
-          className="primary-gradient min-h-[46px] px-4 py-3 text-light-900"
+          className="primary-gradient min-h-11.5 px-4 py-3 text-light-900"
           asChild
         >
           <Link href={ROUTES.ASK_QUESTION} className="max-sm:w-full">
@@ -92,6 +93,8 @@ export default async function Home({ searchParams }: SearchParams) {
           </div>
         )}
       />
+
+      <Pagination page={page} isNext={isNext || false} />
     </>
   )
 }

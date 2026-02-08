@@ -1,5 +1,6 @@
 import TagCard from '@/components/cards/TagCard';
 import DataRenderer from '@/components/DataRenderer';
+import Pagination from '@/components/Pagination';
 import LocalSearch from '@/components/search/LocalSearch';
 import ROUTES from '@/constants/routes';
 import { EMPTY_TAGS } from '@/constants/states';
@@ -13,7 +14,7 @@ const Tags = async ({searchParams}: RouteParams) => {
     filter
   })
 
-  const { tags } = data || {}
+  const { tags, isNext } = data || {}
 
   return <>
   <h1 className='h1-bold text-dark100_light900 text-3xl'>Tags</h1>
@@ -39,6 +40,8 @@ const Tags = async ({searchParams}: RouteParams) => {
       </div>
     )}
   />
+
+  <Pagination page={page} isNext={isNext || false} />
   </>
 }
 
