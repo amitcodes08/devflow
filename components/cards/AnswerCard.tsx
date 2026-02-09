@@ -26,7 +26,7 @@ const AnswerCard = ({
   question,
   containerClasses,
   showReadMore = false,
-  showActionBtns = false,
+  showActionBtns,
 }: Props) => {
   const hasVotedPromise = hasVoted({
     targetId: _id,
