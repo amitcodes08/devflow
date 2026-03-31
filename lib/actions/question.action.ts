@@ -1,6 +1,6 @@
 'use server'
 
-import mongoose, { FilterQuery, Types } from 'mongoose'
+import mongoose, { Types } from 'mongoose'
 import { revalidatePath } from 'next/cache'
 import { after } from 'next/server'
 
@@ -256,7 +256,8 @@ export async function getRecommendedQuestions({
 
   const uniqueTagIds = [...new Set(allTags)]
 
-  const recommendedQuery: FilterQuery<typeof Question> = {
+  // FIX: Cast to any to bypass Mongoose TS export issues
+  const recommendedQuery: any = {
     _id: { $nin: interactedQuestionIds },
     author: { $ne: new Types.ObjectId(userId) },
     tags: { $in: uniqueTagIds.map((id) => new Types.ObjectId(id)) },
@@ -305,7 +306,8 @@ export async function getQuestions(params: PaginatedSearchParams): Promise<
   const skip = (Number(page) - 1) * pageSize
   const limit = pageSize
 
-  const filterQuery: FilterQuery<typeof Question> = {}
+  // FIX: Cast to any to bypass Mongoose TS export issues
+  const filterQuery: any = {}
   let sortCriteria = {}
 
   try {

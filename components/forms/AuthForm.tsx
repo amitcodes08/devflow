@@ -28,7 +28,7 @@ const formSchema = z.object({
 
 interface AuthFormProps<T extends FieldValues> {
     formType: "SIGN_IN" | "SIGN_UP";
-    schema: ZodType<T>;
+    schema: ZodType<T, any >;
     defaultValues: T;
     onSubmit: (data: T) => Promise<ActionResponse>;
 }
@@ -42,7 +42,7 @@ const AuthForm = <T extends FieldValues>({
 
   const router = useRouter();
   
-  const form = useForm<z.infer<typeof schema>>({
+  const form = useForm<T>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues as DefaultValues<T>
   })
