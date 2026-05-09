@@ -40,6 +40,11 @@ export const sidebarLinks = [
     route: '/ask-question',
     label: 'Ask a question',
   },
+  {
+    imgURL: '/icons/leaderboard.png',
+    route: '/leaderboard',
+    label: 'Leaderboard',
+  }
 ]
 
 export const BADGE_CRITERIA = {
