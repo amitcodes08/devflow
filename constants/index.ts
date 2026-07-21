@@ -41,7 +41,7 @@ export const sidebarLinks = [
     label: 'Ask a question',
   },
   {
-    imgURL: '/icons/leaderboard.png',
+    imgURL: '/icons/image.png',
     route: '/leaderboard',
     label: 'Leaderboard',
   }

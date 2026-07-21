@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 interface Props {
-  imgUrl: string
+  imgUrl: string | null | undefined
   alt: string
   value: string | number
   title: string
@@ -28,7 +28,7 @@ const Metric = ({
   const metricContent = (
     <>
       <Image
-        src={imgUrl}
+        src={imgUrl || '/icons/user.svg'}
         width={16}
         height={16}
         alt={alt}

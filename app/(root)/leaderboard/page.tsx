@@ -1,94 +1,106 @@
+import Image from 'next/image'
+import Link from 'next/link'
+
 import { getTopUsersForLeaderboard } from '@/lib/actions/leaderboard.action'
+import ROUTES from '@/constants/routes'
+
+interface LeaderboardUser {
+  _id: string
+  name: string
+  username: string
+  image?: string
+  reputation: number
+}
 
 const LeaderBoard = async () => {
-  const topUsers = await getTopUsersForLeaderboard()
+  const topUsers: LeaderboardUser[] = await getTopUsersForLeaderboard()
+
+  const getRankStyle = (index: number) => {
+    if (index === 0)
+      return 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-yellow-400'
+    if (index === 1)
+      return 'text-light-500 bg-light-700 dark:bg-dark-400 ring-1 ring-light-500 dark:ring-light-400'
+    if (index === 2)
+      return 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-500'
+    return 'text-dark400_light700 background-light700_dark400'
+  }
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800">
-      <div className="bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-center">
-        <h2 className="text-3xl font-extrabold text-white tracking-tight flex items-center justify-center gap-3">
-          <span>🏆</span> Top Users
-        </h2>
-        <p className="text-indigo-100 mt-2 font-medium">
-          Global reputation leaderboard
-        </p>
-      </div>
+    <div className="w-full">
+      {/* Page header — matches h1 pattern from other pages */}
+      <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
+        <h1 className="h1-bold text-dark100_light900">Leaderboard</h1>
+      </section>
 
-      <div className="p-6 sm:p-8">
+      {/* Subtitle */}
+      <p className="body-regular text-dark500_light700 mt-2">
+        Top developers ranked by reputation score
+      </p>
+
+      {/* Leaderboard card */}
+      <div className="mt-9 w-full max-w-2xl">
         {topUsers.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
-              No users found on the leaderboard yet.
+          <div className="card-wrapper rounded-[10px] p-9 text-center">
+            <p className="paragraph-regular text-dark400_light700">
+              No users on the leaderboard yet.
             </p>
           </div>
         ) : (
-          <ul className="space-y-4">
-            {topUsers.map((user: any, index: number) => {
-              const isFirst = index === 0
-              const isSecond = index === 1
-              const isThird = index === 2
-
-              let rankStyle =
-                'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400'
-              if (isFirst)
-                rankStyle =
-                  'text-yellow-700 bg-yellow-100 dark:bg-yellow-900/30 ring-1 ring-yellow-400'
-              else if (isSecond)
-                rankStyle =
-                  'text-primary-500 bg-gray-200 dark:bg-gray-700 ring-1 ring-gray-400'
-              else if (isThird)
-                rankStyle =
-                  'text-amber-800 bg-amber-100 dark:bg-amber-900/30 ring-1 ring-amber-500'
-
-              return (
-                <li
-                  key={user._id}
-                  className="group flex items-center justify-between p-4 sm:p-5 bg-gray-50 dark:bg-gray-800/40 rounded-2xl hover:bg-white dark:hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+          <ul className="flex flex-col gap-4">
+            {topUsers.map((user, index) => (
+              <li key={user._id}>
+                <Link
+                  href={ROUTES.PROFILE(user._id)}
+                  className="card-wrapper flex items-center justify-between rounded-[10px] p-5 transition-shadow duration-300 hover:shadow-light-100 dark:hover:shadow-dark-100"
                 >
-                  <div className="flex items-center gap-4 sm:gap-6">
+                  {/* Left: rank + avatar + name */}
+                  <div className="flex items-center gap-5">
+                    {/* Rank badge */}
                     <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg shadow-sm ${rankStyle}`}
+                      className={`flex size-10 shrink-0 items-center justify-center rounded-full text-base font-bold shadow-sm ${getRankStyle(index)}`}
                     >
-                      {isFirst ? '👑' : `#${index + 1}`}
+                      {index === 0 ? '👑' : `#${index + 1}`}
                     </div>
 
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-200 ring-2 ring-white dark:ring-gray-800 shadow-sm">
+                    {/* Avatar */}
+                    <div className="relative size-12 shrink-0 overflow-hidden rounded-full light-border border-2">
                       {user.image ? (
-                        <img
+                        <Image
                           src={user.image}
-                          alt={user.username}
-                          className="object-cover w-full h-full"
+                          alt={user.name}
+                          fill
+                          className="object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-lg font-semibold uppercase bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-800">
-                          {user.name.charAt(0)}
+                        <div className="primary-gradient flex size-full items-center justify-center text-lg font-bold text-light-900">
+                          {user.name.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
 
+                    {/* Name + username */}
                     <div className="flex flex-col">
-                      <span className="font-bold text-gray-900 dark:text-white text-base sm:text-lg group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      <span className="base-semibold text-dark300_light900 line-clamp-1">
                         {user.name}
                       </span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                      <span className="small-regular text-dark400_light700">
                         @{user.username}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end">
-                    <div className="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg">
-                      <span className="text-indigo-600 dark:text-indigo-400 font-extrabold text-lg sm:text-xl">
-                        {user.reputation}
-                      </span>
-                      <span className="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-wider hidden sm:block">
-                        REP
-                      </span>
-                    </div>
+                  {/* Right: reputation */}
+                  <div className="flex flex-col items-end gap-0.5">
+                    <span className="body-semibold text-primary-500">
+                      {user.reputation.toLocaleString()}
+                    </span>
+                    <span className="subtle-medium text-dark400_light700 uppercase tracking-wider">
+                      rep
+                    </span>
                   </div>
-                </li>
-              )
-            })}
+                </Link>
+              </li>
+            ))}
           </ul>
         )}
       </div>
