@@ -21,7 +21,7 @@ declare global {
 let cached = global.mongoose;
 
 if(!cached) {
-  logger.info('Using existing mongoose connection')
+  logger.info('Initializing mongoose connection cache')
     cached = global.mongoose = { conn: null, promise: null};
 }
 

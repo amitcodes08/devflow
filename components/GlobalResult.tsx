@@ -30,9 +30,7 @@ const GlobalResult = () => {
           type,
         })
 
-        console.log(res)
-
-        setResult(res.data)
+        setResult(res.data ?? [])
       } catch (error) {
         console.log(error)
         setResult([])
