@@ -18,7 +18,13 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
-        port: ""
+        port: ''
+      },
+      {
+        // Allow employer logos from any HTTPS source returned by JSearch
+        protocol: 'https',
+        hostname: '**',
+        port: ''
       }
     ],
   },

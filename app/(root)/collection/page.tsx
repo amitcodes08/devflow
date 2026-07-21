@@ -1,3 +1,4 @@
+import { auth } from '@/auth'
 import QuestionCard from '@/components/cards/QuestionCard'
 import DataRenderer from '@/components/DataRenderer'
 import CommonFilter from '@/components/filters/CommonFilter'
@@ -7,12 +8,16 @@ import { CollectionFilters } from '@/constants/filters'
 import ROUTES from '@/constants/routes'
 import { EMPTY_QUESTION } from '@/constants/states'
 import { getSavedQuestions } from '@/lib/actions/collection.action'
+import { redirect } from 'next/navigation'
 
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>
 }
 
 const Collections = async ({ searchParams }: SearchParams) => {
+  const session = await auth()
+  if (!session) return redirect(ROUTES.SIGN_IN)
+
   const { page, pageSize, query, filter } = await searchParams
 
   const { success, data, error } = await getSavedQuestions({
