@@ -11,8 +11,14 @@ import { SignInSchema } from './lib/validations'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    GitHub,
-    Google, 
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    }),
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
     Credentials({
       async authorize(credentials) {
         const validatedFields = SignInSchema.safeParse(credentials)
