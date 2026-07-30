@@ -10,6 +10,7 @@ import { api } from './lib/api'
 import { SignInSchema } from './lib/validations'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     GitHub,
     Google, 
@@ -80,25 +81,49 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.type === 'credentials') return true
       if (!account || !user) return false
 
+      const name =
+        user.name ||
+        (profile?.name as string) ||
+        (profile?.login as string) ||
+        user.email?.split('@')[0] ||
+        'User'
+
+      const rawUsername =
+        account.provider === 'github'
+          ? (profile?.login as string) || name
+          : name
+
+      const cleanUsername = rawUsername
+        .toLowerCase()
+        .replace(/[^a-zA-Z0-9_]/g, '')
+
+      const username =
+        cleanUsername.length < 3 ? `${cleanUsername}user` : cleanUsername
+
       const userInfo = {
-        name: user.name!,
+        name,
         email: user.email!,
-        image: user.image!,
-        username:
-          account.provider === 'github'
-            ? (profile?.login as string)
-            : (user.name?.toLowerCase() as string),
+        image: user.image || '',
+        username,
       }
 
-      const { success } = (await api.auth.oAuthSignIn({
-        user: userInfo,
-        provider: account.provider as 'github' | 'google',
-        providerAccountId: account.providerAccountId,
-      })) as ActionResponse
+      try {
+        const { success } = (await api.auth.oAuthSignIn({
+          user: userInfo,
+          provider: account.provider as 'github' | 'google',
+          providerAccountId: account.providerAccountId,
+        })) as ActionResponse
 
-      if (!success) return false
+        if (!success) {
+          console.error('oAuthSignIn API returned failure for:', userInfo)
+          return false
+        }
 
-      return true
+        return true
+      } catch (error) {
+        console.error('Error in signIn callback:', error)
+        return false
+      }
     },
   },
 })
