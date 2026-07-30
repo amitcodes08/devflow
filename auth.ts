@@ -9,7 +9,14 @@ import { IUserDoc } from './database/user.model'
 import { api } from './lib/api'
 import { SignInSchema } from './lib/validations'
 
+const authUrl =
+  process.env.AUTH_URL ??
+  process.env.NEXTAUTH_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
+  ...(authUrl ? { baseUrl: authUrl } : {}),
   providers: [
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID as string,
